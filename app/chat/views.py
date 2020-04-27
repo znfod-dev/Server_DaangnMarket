@@ -18,6 +18,7 @@ from chat.serializers import RoomSerializer, MessageSerializer, RoomCreateSerial
 
 # 만들어진 Room DB에 저장
 from members.models import User
+from post.models import Post
 
 
 class ApiRoomSave(CreateAPIView):
@@ -26,10 +27,12 @@ class ApiRoomSave(CreateAPIView):
     def create(self, request, *args, **kwargs):
         user = request.user
         receiver_username = request.data['receiver']
+        post_id = request.data['post']
+        post = Post.objects.get(pk=post_id)
         receiver = User.objects.get(username=receiver_username)
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(members=[user, receiver])
+            serializer.save(members=[user, receiver], post=post)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
